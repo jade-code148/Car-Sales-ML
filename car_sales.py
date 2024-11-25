@@ -29,11 +29,11 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.express as px
 
-# Mapear género a colores
+
 color_map = {'DoubleÂ\xa0Overhead Camshaft': 'blue', 'Overhead Camshaft': 'red'}
 df['Color'] = df['Gender'].map(color_map)
 
-# Crear el gráfico de dispersión 3D con Plotly
+# Create the 3D scatter plot with Plotly
 fig = px.scatter_3d(df, x='Annual Income', y='Price ($)', z='Company', color='Engine', opacity=0.6,
                      color_discrete_map={'DoubleÂ\xa0Overhead Camshaft': 'blue', 'Overhead Camshaft': 'red'},
                      labels={'Annual Income': 'Ingreso Anual', 'Price ($)': 'Precio', 'Car_id': 'Car_id'},
@@ -88,15 +88,15 @@ plt.xlabel('Price ($)')
 plt.ylabel('Company')
 plt.show()
 
-# Codificación one-hot para las columnas categóricas
+# One-hot encoding for categorical columns
 categorical_cols = ['Gender', 'Company', 'Model', 'Engine', 'Transmission', 'Color', 'Body Style', 'Dealer_Region']
 df_encoded = pd.get_dummies(df, columns=categorical_cols, drop_first=True)
 
-# Conversión de la fecha y el período a características numéricas
+# Conversion of date and period to numerical features
 df_encoded['Year'] = df['Date'].dt.year
 df_encoded['Month'] = df['Month'].dt.month
 
-# Conservar las columnas numéricas existentes
+# Retain the existing numerical columns
 numerical_cols = ['Car_id', 'Annual Income', 'Price ($)', 'Phone']
 df_encoded[numerical_cols] = df[numerical_cols]
 
@@ -117,23 +117,22 @@ import plotly.express as px
 from sklearn.decomposition import PCA
 from sklearn.cluster import KMeans
 
-# Asumiendo que df_pca es tu DataFrame original preparado para PCA
-
-# Aplicar PCA
+# Assuming df_pca is your original DataFrame prepared for PCA
+# Apply PCA
 pca = PCA(n_components=3)
 reduced_data = pca.fit_transform(df_pca)
 
-# Cambiar el DataFrame a las nuevas dimensiones PCA
+# Change the DataFrame to the new PCA dimensions
 df_pca_reduced = pd.DataFrame(reduced_data, columns=['PC1', 'PC2', 'PC3'])
 
-# Aplicar K-Means para crear clusters
+# Apply K-Means to create clusters
 kmeans = KMeans(n_clusters=10, random_state=42)
 clusters = kmeans.fit_predict(df_pca_reduced)
 
-# Agregar la columna de clusters al DataFrame
+# Add the clusters column to the DataFrame
 df_pca_reduced['Cluster'] = clusters
 
-# Crear el gráfico 3D de clustering
+# Create the 3D clustering plot
 fig = px.scatter_3d(df_pca_reduced, x='PC1', y='PC2', z='PC3', color='Cluster', opacity=0.7, size_max=5, title='3D Clustering')
 fig.show()
 
@@ -145,15 +144,15 @@ from sklearn.linear_model import LinearRegression, Ridge, Lasso
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.svm import SVR
-from xgboost import XGBRegressor  # Importación para XGBoost
-from catboost import CatBoostRegressor  # Importación para CatBoost
-from lightgbm import LGBMRegressor  # Importación para LightGBM
-from sklearn.neural_network import MLPRegressor  # Importación para MLPRegressor
+from xgboost import XGBRegressor 
+from catboost import CatBoostRegressor  
+from lightgbm import LGBMRegressor 
+from sklearn.neural_network import MLPRegressor  
 from sklearn.metrics import mean_absolute_error, r2_score
 
 df = pd.read_csv('/content/Car Sales.xlsx - car_data.csv')
 
-# Crear una lista de modelos
+# Create a list of models
 models = [
     ('Linear Regression', LinearRegression()),
     ('Ridge Regression', Ridge()),
@@ -162,38 +161,36 @@ models = [
     ('Random Forest Regressor', RandomForestRegressor()),
     ('Gradient Boosting Regressor', GradientBoostingRegressor()),
     ('SVR', SVR()),
-    ('XGBoost Regressor', XGBRegressor()),  # Nuevo modelo XGBoost
-    ('CatBoost Regressor', CatBoostRegressor(verbose=False)),  # Nuevo modelo CatBoost
-    ('LightGBM Regressor', LGBMRegressor()),  # Nuevo modelo LightGBM
-    ('MLP Regressor', MLPRegressor())  # Nuevo modelo MLPRegressor
+    ('XGBoost Regressor', XGBRegressor()), 
+    ('CatBoost Regressor', CatBoostRegressor(verbose=False)),  
+    ('LightGBM Regressor', LGBMRegressor()), 
+    ('MLP Regressor', MLPRegressor())  
 ]
 
-# Resto del código...
 
-
-# Codificar las columnas categóricas con Label Encoding
+# Encode the categorical columns with Label Encoding
 label_encoder = LabelEncoder()
 categorical_cols = ['Gender', 'Company', 'Model', 'Engine', 'Transmission', 'Color', 'Body Style', 'Dealer_Region']
 for col in categorical_cols:
     df[col] = label_encoder.fit_transform(df[col])
 
-# Extraer características relevantes y el objetivo
+# Extract relevant features and the target
 X = df[['Gender', 'Model', 'Engine', 'Transmission', 'Company', 'Color', 'Body Style', 'Dealer_Region']]
 
-# Aplicar PCA para reducción de dimensionalidad
-pca = PCA(n_components=3)  # Ajusta el número de componentes según tu elección
+# Apply PCA for dimensionality reduction
+pca = PCA(n_components=3) 
 X_pca = pca.fit_transform(X)
 
-# Dividir los datos en conjuntos de entrenamiento y prueba
+# Split the data into training and test sets
 
 y = df['Price ($)']
 
-# Dividir los datos en conjuntos de entrenamiento y prueba
+# Split the data into training and test sets
 X_train, X_test, y_train, y_test = train_test_split(X_pca, y, test_size=0.2, random_state=42)
 
 
 
-# Entrenar y evaluar cada modelo en el ciclo for
+# Train and evaluate each model in the for loop
 for model_name, model in models:
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
